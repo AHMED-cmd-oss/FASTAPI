@@ -33,6 +33,13 @@ class Price(IntEnum):
     CAR3 = 30000
     CAR4 = 40000
     CAR5 = 50000
+instocks= [
+    {"car_name": Cars.CAR1, "in_stock": True},
+    {"car_name": Cars.CAR2, "in_stock": False},
+    {"car_name": Cars.CAR3, "in_stock": True},
+    {"car_name": Cars.CAR4, "in_stock": False},
+    {"car_name": Cars.CAR5, "in_stock": True},
+]
 @app.get("/")
 async def index():
     """
@@ -43,6 +50,7 @@ async def index():
 async def add_car(user:Users, car_name:Cars):
     """
     Docstring for add_car
+    
     :param user: Description
     :type user: Users
     :param car_name: Description
@@ -54,3 +62,24 @@ async def add_car(user:Users, car_name:Cars):
         "car_name": car_name.value,
         "price": f"the price is {prices.value} dollars"
     }  }
+@app.get("/repository")
+async def repository(start:int = 0, limit:int = 5,car_name:Cars = None):
+    """
+    Docstring for repository
+    """
+    if car_name:
+        item = next((car for car in instocks if car['car_name'] == car_name),None)
+        if item:
+            return item
+    return instocks[start:limit]
+@app.get("/cars/price")
+async def price_range(ranges:Price = None):
+    """
+    Docstring for price_range
+    
+    :param ranges: Description
+    :type ranges: Price
+    """
+    if ranges:
+        return {Cars[car.name] for car in Price if car.value <= ranges.value}
+    return {"Message": "Please provide a price range to filter cars."}
